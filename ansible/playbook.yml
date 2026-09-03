@@ -1,0 +1,10 @@
+---
+- name: Deploy application
+  hosts: web
+  become: true
+
+  roles:
+    - docker
+    - app
+    - certbot
+    - nginx

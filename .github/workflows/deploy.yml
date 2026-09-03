@@ -1,0 +1,11 @@
+- name: Deploy
+  run: |
+    ssh deploy@example.com \
+      "mkdir -p /var/www/kr-web/releases/${GITHUB_SHA}"
+
+    rsync -az --delete \
+      dist/ \
+      deploy@example.com:/var/www/kr-web/releases/${GITHUB_SHA}/
+
+    ssh deploy@example.com \
+      "ln -sfn /var/www/kr-web/releases/${GITHUB_SHA} /var/www/kr-web/current"

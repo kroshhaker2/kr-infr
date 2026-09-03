@@ -1,0 +1,97 @@
+---
+- name: Install Certbot and Cloudflare DNS plugin
+  ansible.builtin.apt:
+    name:
+      - certbot
+      - python3-certbot-dns-cloudflare
+    state: present
+    update_cache: true
+
+- name: Create Certbot secrets directory
+  ansible.builtin.file:
+    path: /etc/letsencrypt
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy Cloudflare credentials
+  ansible.builtin.template:
+    src: cloudflare.ini.j2
+    dest: "{{ certbot_cloudflare_credentials }}"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Obtain Let's Encrypt certificate
+  ansible.builtin.command:
+    cmd: >
+      certbot certonly
+      --dns-cloudflare
+      --dns-cloudflare-credentials {{ certbot_cloudflare_credentials }}
+      --dns-cloudflare-propagation-seconds {{ certbot_propagation_seconds }}
+      --non-interactive
+      --agree-tos
+      --email {{ certbot_email }}
+      {% for certbot_domain in certbot_domains %}
+      -d {{ certbot_domain }}
+      {% endfor %}
+    creates: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"
+
+- name: Create Certbot deploy hooks directory
+  ansible.builtin.file:
+    path: /etc/letsencrypt/renewal-hooks/deploy
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy nginx reload hook
+  ansible.builtin.template:
+    src: nginx-reload.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/deploy/10-nginx-reload.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create Certbot systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/certbot-renew.service
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Certbot certificate renewal
+      Documentation=https://eff-certbot.readthedocs.io/
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/bin/certbot renew --quiet
+
+- name: Create Certbot systemd timer
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/certbot-renew.timer
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Run Certbot renewal periodically
+
+      [Timer]
+      OnCalendar={{ certbot_renew_schedule }}
+      Persistent=true
+
+      [Install]
+      WantedBy=timers.target
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start Certbot renewal timer
+  ansible.builtin.systemd:
+    name: certbot-renew.timer
+    enabled: true
+    state: started

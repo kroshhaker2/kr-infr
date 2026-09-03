@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+    networks:
+      - backend
+
+  server:
+    image: ghcr.io/kroshhaker2/kr-server:${SERVER_VERSION}
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+
+    expose:
+     - "3000"
+
+    depends_on:
+      postgres:
+        condition: service_started
+
+    networks:
+      - backend
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+
+    networks:
+      - backend
+
+volumes:
+  postgres-data:
+
+networks:
+  backend:
+
