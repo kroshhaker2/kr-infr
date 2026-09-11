@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-issuer
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/kroshhaker2/kr-infr.git
+    targetRevision: main
+    path: k8s-manifests/cert-manager
+    directory:
+      include: 'cluster-issuer.yaml'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

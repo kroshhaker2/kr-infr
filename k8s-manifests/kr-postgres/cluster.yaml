@@ -1,0 +1,15 @@
+# kr-postgres/cluster.yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: kr-postgres
+  namespace: database
+spec:
+  instances: 1
+  storage:
+    size: 10Gi
+    storageClass: local-path
+  bootstrap:
+    initdb:
+      database: kr
+      owner: kr

@@ -1,0 +1,19 @@
+grafana:
+  adminPassword: "<ваш текущий пароль>"
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+  defaultDashboardsEnabled: true
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - grafana.kr.kroshhaker.dev
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.kr.kroshhaker.dev
