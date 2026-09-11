@@ -6,11 +6,11 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/kroshha/kr-infr.git
+    repoURL: https://github.com/kroshhaker2/kr-infr.git
     targetRevision: main
     path: k8s-manifests/headlamp
     directory:
-      include: 'rbac.yaml'
+      include: "rbac.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
