@@ -2,6 +2,7 @@ controller:
   hostNetwork: true
   dnsPolicy: ClusterFirstWithHostNet
   kind: Deployment
+  replicaCount: 1
   service:
     type: ClusterIP
   metrics:
@@ -10,3 +11,9 @@ controller:
       enabled: true
       additionalLabels:
         release: kube-prometheus-stack
+  ingressClassResource:
+    name: nginx
+    default: false
+    controllerValue: "k8s.io/ingress-nginx"
+  admissionWebhooks:
+    enabled: true
