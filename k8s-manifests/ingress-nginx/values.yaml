@@ -6,7 +6,7 @@ controller:
   service:
     type: ClusterIP
   metrics:
-    enabled: true
+    enabled: false
     serviceMonitor:
       enabled: true
       additionalLabels:
