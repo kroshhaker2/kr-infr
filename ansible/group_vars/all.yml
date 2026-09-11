@@ -1,0 +1,56 @@
+---
+# ==== Пользователи / SSH ====
+admin_user: k8sadmin
+admin_sudo_nopasswd: true
+admin_authorized_keys:
+  - "{{ lookup('ansible.builtin.file', lookup('ansible.builtin.env', 'HOME') + '/.ssh/id_ed25519.pub') }}"
+
+ssh_port: 2222
+ssh_client_alive_interval: 300
+ssh_client_alive_count_max: 2
+
+# ==== Имя / сеть ====
+k8s_domain: internal
+k8s_node_ip: ""
+k8s_fqdn: ""
+network_check_domains:
+  - deb.debian.org
+  - pkgs.k8s.io
+  - registry.k8s.io
+  - github.com
+  - gitlab.com
+  - letsencrypt.org
+
+# ==== Пакеты ====
+install_net_tools: true
+install_smartmontools: true
+ntp_servers:
+  - 0.debian.pool.ntp.org
+  - 1.debian.pool.ntp.org
+  - 2.debian.pool.ntp.org
+
+# ==== Firewall ====
+nft_allowed_tcp: [80, 443]
+nft_allowed_udp: []
+nft_allow_flannel_vxlan: true
+nft_allow_nodeport: false
+nft_forward_policy: accept
+
+# ==== Kubernetes ====
+k8s_version: "1.33"
+k8s_pause_image: "registry.k8s.io/pause:3.10"
+install_crictl: true
+pod_network_cidr: 10.244.0.0/16   # flannel
+service_cidr: 10.96.0.0/12
+flannel_manifest_url: https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+k8s_apiserver_port: 6443
+k8s_kubeconfig: /etc/kubernetes/admin.conf
+
+k8s_kernel_modules: [overlay, br_netfilter]
+k8s_sysctl:
+  - { name: net.ipv4.ip_forward, value: "1" }
+  - { name: net.bridge.bridge-nf-call-iptables, value: "1" }
+
+# ==== Reboot ====
+allow_reboot: true
+reboot_timeout: 600

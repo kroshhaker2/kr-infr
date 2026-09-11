@@ -1,0 +1,8 @@
+# ПЕРВЫЙ запуск (свежая нода): root + пароль, порт 22.
+# После успешного site.yml замени на ansible_user=k8sadmin ansible_port=2222
+[k8s_control_plane]
+k8s-cp-1 ansible_host=192.168.1.50 ansible_user=root ansible_port=22
+
+[k8s_nodes:children]
+k8s_control_plane
+# k8s_workers          # будущие воркеры: ansible_host=..., ansible_user=root, ansible_port=22

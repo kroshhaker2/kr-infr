@@ -1,0 +1,19 @@
+## {{ ansible_managed }}
+
+Port {{ ssh_port }}
+
+PermitRootLogin {{ ssh_permit_root_login }}
+PasswordAuthentication {{ ssh_password_authentication }}
+PubkeyAuthentication {{ ssh_pubkey_authentication }}
+ChallengeResponseAuthentication {{ ssh_challenge_response_authentication }}
+UsePAM {{ ssh_usepam }}
+X11Forwarding {{ ssh_x11_forwarding }}
+MaxAuthTries {{ ssh_max_auth_tries }}
+LoginGraceTime {{ ssh_login_grace_time }}
+
+ClientAliveInterval {{ ssh_client_alive_interval }}
+ClientAliveCountMax {{ ssh_client_alive_count_max }}
+{% if ssh_allow_users %}
+
+AllowUsers {{ ssh_allow_users | join(' ') }}
+{% endif %}

@@ -1,3 +1,0 @@
-creation_rules:
-  - path_regex: inventory/group_vars/.*\.sops\.ya?ml$
-    age: age1qeyu9lq3u85k0qcpqhjpgcrvawtmx2adpyfprffqs4vrn7uc497q7s3ysd

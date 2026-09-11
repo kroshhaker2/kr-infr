@@ -1,0 +1,15 @@
+---
+- name: Fail early if admin SSH key is not defined
+  ansible.builtin.assert:
+    that:
+      - admin_user_ssh_public_key | length > 0
+    fail_msg: >-
+      admin_user_ssh_public_key не задан. Отключать password authentication
+      без установленного ключа нельзя — потеряешь доступ к серверу.
+    quiet: true
+
+- name: Create/manage administrative user
+  ansible.builtin.import_tasks: user.yml
+
+- name: Harden SSH daemon
+  ansible.builtin.import_tasks: ssh.yml
