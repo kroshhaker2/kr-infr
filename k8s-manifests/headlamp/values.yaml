@@ -8,7 +8,7 @@ ingress:
     - host: headlamp.kr.kroshhaker.dev
       paths:
         - path: /
-          pathType: Prefix
+          type: Prefix
   tls:
     - secretName: headlamp-tls
       hosts:

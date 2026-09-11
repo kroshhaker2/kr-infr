@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/kroshhaker2/kr-infr.git
+    repoURL: https://github.com/kroshha/kr-infr.git
     targetRevision: main
     path: k8s-manifests/headlamp
     directory:
