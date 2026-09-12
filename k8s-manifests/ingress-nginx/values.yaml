@@ -3,6 +3,8 @@ controller:
   dnsPolicy: ClusterFirstWithHostNet
   kind: Deployment
   replicaCount: 1
+  updateStrategy:
+    type: Recreate
   service:
     type: ClusterIP
   metrics:
