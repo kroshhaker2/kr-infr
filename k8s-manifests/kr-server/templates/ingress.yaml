@@ -2,18 +2,17 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: kr-server
-  namespace: kr
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer }}
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - api.kr.kroshhaker.dev
-      secretName: kr-server-tls
+        - {{ .Values.ingress.host }}
+      secretName: {{ .Values.ingress.tlsSecretName }}
   rules:
-    - host: api.kr.kroshhaker.dev
+    - host: {{ .Values.ingress.host }}
       http:
         paths:
           - path: /
@@ -22,4 +21,4 @@ spec:
               service:
                 name: kr-server
                 port:
-                  number: 3000
+                  number: {{ .Values.port }}

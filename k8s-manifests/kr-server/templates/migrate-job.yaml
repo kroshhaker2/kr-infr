@@ -1,0 +1,29 @@
+{{- if .Values.migrate.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kr-server-migrate-{{ .Release.Revision }}
+  annotations:
+    "argocd.argoproj.io/hook": PreSync
+    "argocd.argoproj.io/hook-delete-policy": BeforeHookCreation
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["pnpm", "exec", "prisma", "migrate", "deploy"]
+          env:
+            - name: PORT
+              value: "{{ .Values.port }}"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: {{ .Values.database.secretKey }}
+{{- end }}
