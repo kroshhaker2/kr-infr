@@ -1,0 +1,11 @@
+image:
+  repository: ghcr.io/kroshhaker2/kr-web
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+ingress:
+  host: kr.kroshhaker.dev
+  tlsSecretName: kr-web-tls
+  clusterIssuer: letsencrypt-prod
