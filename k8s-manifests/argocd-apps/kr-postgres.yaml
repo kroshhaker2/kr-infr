@@ -11,7 +11,7 @@ spec:
     path: k8s-manifests/kr-postgres
   destination:
     server: https://kubernetes.default.svc
-    namespace: database
+    namespace: kr
   syncPolicy:
     automated:
       prune: true
