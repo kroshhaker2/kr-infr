@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kr-postgres
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/kroshhaker2/kr-infr.git
+    targetRevision: main
+    path: k8s-manifests/kr-postgres
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: database
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
