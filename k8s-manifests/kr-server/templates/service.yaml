@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: kr-server-canary
+  name: kr-server
 spec:
   selector:
     app: kr-server
