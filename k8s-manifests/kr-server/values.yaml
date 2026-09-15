@@ -5,9 +5,6 @@ image:
 
 replicaCount: 3
 
-imagePullSecrets:
-  - name: ghcr-credentials
-
 port: 3000
 
 ingress:
@@ -21,3 +18,26 @@ database:
 
 migrate:
   enabled: true
+
+
+probes:
+  path: /api/v1/health
+  liveness:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+rollout:
+  successThreshold: 0.95
+  steps:
+    - setWeight: 20
+    - pauseSeconds: 60
+    - setWeight: 50
+    - pauseSeconds: 60
+    - setWeight: 100

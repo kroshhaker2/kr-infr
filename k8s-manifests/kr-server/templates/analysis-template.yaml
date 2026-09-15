@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: kr-server-success-rate
+spec:
+  metrics:
+    - name: success-rate
+      interval: 30s
+      successCondition: result[0] >= {{ .Values.rollout.successThreshold }}
+      failureLimit: 3
+      provider:
+        prometheus:
+          address: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(nginx_ingress_controller_requests{ingress="kr-server", status!~"5.."}[2m]))
+            /
+            sum(rate(nginx_ingress_controller_requests{ingress="kr-server"}[2m]))

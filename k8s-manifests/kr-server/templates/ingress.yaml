@@ -19,6 +19,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: kr-server
+                name: kr-server-stable
                 port:
                   number: {{ .Values.port }}
