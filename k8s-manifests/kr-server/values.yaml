@@ -5,10 +5,11 @@ image:
 
 replicaCount: 3
 
-imagePullSecrets:
-  - name: ghcr-credentials
-
 port: 3000
+
+env:
+  NODE_ENV: "production"
+  CORS_ORIGINS: "https://kr.kroshhaker.dev"
 
 ingress:
   host: api.kr.kroshhaker.dev
