@@ -38,7 +38,7 @@ prompt_password_or_generate() {
     echo
     echo "== $label =="
     echo "1) Ввести свой пароль"
-    echo "2) Сгенерировать автоматически (${length} символов)"
+    echo "2) Сгенерировать автоматически"
     read -r -p "Выбор [1/2]: " choice
 
     case "$choice" in
@@ -141,12 +141,24 @@ kubectl create secret generic cloudflare-api-token \
 
 create_namespace monitoring
 
-prompt_password_or_generate "Grafana admin password" 256 GRAFANA_ADMIN_PASSWORD
+prompt_password_or_generate "Grafana admin password" 128 GRAFANA_ADMIN_PASSWORD
 
 kubectl create secret generic grafana-admin-credentials \
     -n monitoring \
-    --from-literal=admin-user=admin \
+    --from-literal=admin-user=kr-admin \
     --from-literal=admin-password="${GRAFANA_ADMIN_PASSWORD}" \
+    --dry-run=client -o yaml | kubectl apply -f -
+
+# --- S3 storage / MinIO ---
+
+create_namespace minio
+
+prompt_password_or_generate "MinIO root password" 128 MINIO_ROOT_PASSWORD
+
+kubectl create secret generic minio-credentials \
+    -n minio \
+    --from-literal=rootUser=kr-admin \
+    --from-literal=rootPassword="${MINIO_ROOT_PASSWORD}" \
     --dry-run=client -o yaml | kubectl apply -f -
 
 # ────────────────────────────────────────────────────────────
@@ -156,6 +168,41 @@ kubectl create secret generic grafana-admin-credentials \
 echo "== Apply root-app =="
 
 kubectl apply -f "$SCRIPT_DIR/root-app.yaml"
+
+# ────────────────────────────────────────────────────────────
+# 5. kr-server / MinIO app credentials
+# ────────────────────────────────────────────────────────────
+
+echo
+echo "== Waiting for MinIO to be ready =="
+
+kubectl wait --for=condition=Available deployment/minio -n minio --timeout=300s
+
+MINIO_ROOT_USER=$(kubectl get secret minio-credentials -n minio -o jsonpath='{.data.rootUser}' | base64 -d)
+MINIO_ROOT_PASSWORD=$(kubectl get secret minio-credentials -n minio -o jsonpath='{.data.rootPassword}' | base64 -d)
+
+echo "== Creating kr-server MinIO app user =="
+
+KR_SERVER_MINIO_PASSWORD=$(generate_password 64)
+
+kubectl exec -n minio deploy/minio -- \
+    mc alias set local http://localhost:9000 "${MINIO_ROOT_USER}" "${MINIO_ROOT_PASSWORD}"
+
+kubectl exec -n minio deploy/minio -- \
+    mc admin user add local kr-server-app "${KR_SERVER_MINIO_PASSWORD}"
+
+kubectl exec -n minio deploy/minio -- \
+    mc admin policy attach local readwrite --user kr-server-app
+
+create_namespace kr
+
+kubectl create secret generic minio-app-credentials \
+    -n kr \
+    --from-literal=endpoint=http://minio.minio.svc.cluster.local:9000 \
+    --from-literal=access-key=kr-server-app \
+    --from-literal=secret-key="${KR_SERVER_MINIO_PASSWORD}" \
+    --from-literal=bucket=kr-uploads \
+    --dry-run=client -o yaml | kubectl apply -f -
 
 # ────────────────────────────────────────────────────────────
 # Итог
@@ -170,5 +217,6 @@ echo "==================================================="
 echo " Готово. Сохраните эти данные:"
 echo "==================================================="
 echo "ArgoCD admin password:      ${ARGOCD_PASSWORD}"
-echo "Grafana admin password:     ${GRAFANA_ADMIN_PASSWORD}"
+echo "Grafana kr-admin password:  ${GRAFANA_ADMIN_PASSWORD}"
+echo "MinIO kr-admin password:    ${MINIO_ROOT_PASSWORD}"
 echo "==================================================="

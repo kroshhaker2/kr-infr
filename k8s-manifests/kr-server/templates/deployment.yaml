@@ -23,6 +23,26 @@ spec:
             - name: {{ $name }}
               value: {{ $value | quote }}
             {{- end }}
+            - name: S3_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: minio-app-credentials
+                  key: endpoint
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-app-credentials
+                  key: access-key
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-app-credentials
+                  key: secret-key
+            - name: S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: minio-app-credentials
+                  key: bucket
             - name: PORT
               value: "{{ .Values.port }}"
             - name: DATABASE_URL

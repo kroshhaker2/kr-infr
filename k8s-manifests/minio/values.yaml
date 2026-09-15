@@ -1,0 +1,55 @@
+# k8s-manifests/minio/values.yaml
+mode: standalone
+
+existingSecret: minio-credentials
+
+persistence:
+  enabled: true
+  storageClass: local-path
+  size: 50Gi
+
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 250m
+  limits:
+    memory: 1Gi
+    cpu: 500m
+
+buckets:
+  - name: kr-uploads
+    policy: none
+    purge: false
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+  hosts:
+    - s3.kr.kroshhaker.dev
+  tls:
+    - secretName: minio-s3-tls
+      hosts:
+        - s3.kr.kroshhaker.dev
+
+consoleIngress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - minio-console.kr.kroshhaker.dev
+  tls:
+    - secretName: minio-console-tls
+      hosts:
+        - minio-console.kr.kroshhaker.dev
+
+metrics:
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
+      release: kube-prometheus-stack
