@@ -201,7 +201,7 @@ kubectl create secret generic minio-app-credentials \
     --from-literal=endpoint=http://minio.minio.svc.cluster.local:9000 \
     --from-literal=access-key=kr-server-app \
     --from-literal=secret-key="${KR_SERVER_MINIO_PASSWORD}" \
-    --from-literal=bucket=kr-uploads \
+    --from-literal=bucket=posts \
     --dry-run=client -o yaml | kubectl apply -f -
 
 # ────────────────────────────────────────────────────────────
