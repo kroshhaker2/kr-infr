@@ -9,3 +9,5 @@ ingress:
   host: kr.kroshhaker.dev
   tlsSecretName: kr-web-tls
   clusterIssuer: letsencrypt-prod
+
+api_url: "https://api.kr.kroshhaker.dev/api/v1"
