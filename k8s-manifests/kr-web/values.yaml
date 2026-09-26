@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/kroshhaker2/kr-web
-  tag: "1.2.1"
+  tag: "1.3.0"
   pullPolicy: IfNotPresent
 
 replicaCount: 2
